@@ -34,28 +34,26 @@ void process_image_callback(const sensor_msgs::Image img)
     int middle = 0; 
 	
     for (unsigned i = 0; i < img.height; i++) {
- 	for (unsigned j = 0; j < img.step; j++) {
-	  int index = i * img.step + j;	
-          int pixel = img.data[index];
-
-	  if(pixel == white_pixel){
-	     float direction = (float) j / img.step;
-	     if(direction < 0.333){
-	       left = left + 1;
-	     }else if( 0.6777<= direction){
-	       middle = middle + 1;
-	     }else{
-	       right = right + 1;
-	     }
-          }
-      }
+		for (unsigned j = 0; j < img.step; j++) {
+		    int index = i * img.step + j;	
+			if (img.data[index] == white_pixel && img.data[index+1] == white_pixel && img.data[index+2] == white_pixel ){
+				 float direction = (float)(img.step/3);
+				 if(j < direction){
+				   left = left + 1;
+				 }else if(j <= 2 * direction){
+				   middle = middle + 1;
+				 }else{
+				   right = right + 1;
+				 }
+			}
+		}
     }
     
     int max_count = std::max({left, right, middle}); 	
     if(left == max_count){//if left pixels more than right and midd, drive left
-      drive_robot(0.0, -0.5); 	
+      drive_robot(0.0, 0.5); 	
     }else if(right == max_count){//if right pixels more than left and midd, drive right
-      drive_robot(0.0, 0.5);
+      drive_robot(0.0, -0.5);
     }else if(middle == max_count){//if middle pixels more than left and right, drive forward
       drive_robot(0.5, 0.0);
     }else{
